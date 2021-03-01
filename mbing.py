@@ -67,7 +67,7 @@ def goQR(client, to, act):
 def goKick(to, enemy):
     if len(group["list"][to]["in"]) > 0:
         try:
-            random.choice(group["list"][to]["in"]).deleteOtherFromChat(to, [enemy])
+            mbing[random.choice(group["list"][to]["in"])].deleteOtherFromChat(to, [enemy])
         except:
             pass
 
@@ -77,14 +77,14 @@ def goCancel(to, enemy):
         if len(group["list"][to]["in"]) > 0:
             for i in range(x):
                 try:
-                    random.choice(group["list"][to]["in"]).cancelChatInvitation(to, [enemy[i*33:i*33+33]])
+                    mbing[random.choice(group["list"][to]["in"])].cancelChatInvitation(to, [enemy[i*33:i*33+33]])
                 except:
                     pass
     else:
         if len(group["list"][to]["in"]) > 0:
             for i in range(x):
                 try:
-                    random.choice(group["list"][to]["in"]).cancelChatInvitation(to, [enemy])
+                    mbing[random.choice(group["list"][to]["in"])].cancelChatInvitation(to, [enemy])
                 except:
                     pass
 
