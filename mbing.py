@@ -16,10 +16,13 @@ bots = {
     "botsMid":{},
     "loader":{},
     "teams":{},
-    "sdk":{}
+    "sdk":{
+        'ue2330fdb6b7db69eb771c3176388d0ff'
+    }
 }
 group = {
     "list":{},
+    "sdk": {},
     "qr":[],
     "invite":[],
     "kick":[],
@@ -277,7 +280,7 @@ def worker(op, m):
         trace = catch.__traceback__
         print("Error Name: "+str(trace.tb_frame.f_code.co_name)+"\nError Filename: "+str(trace.tb_frame.f_code.co_filename)+"\nError Line: "+str(trace.tb_lineno)+"\nError: "+str(catch))
 
-async def kambing(client, mids):
+def kambing(client, mids):
     while True:
         try:
             ops = client.fetchOps()
@@ -287,11 +290,12 @@ async def kambing(client, mids):
                 if op.revision == -1 and op.param1 != None:
                     client.individualRev = int(op.param1.split("\x1e")[0])
                 client.localRev = max(op.revision, client.localRev)
-                executor.submit(worker,op, mids)
+                worker(op, mids)
         except:
             pass
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    loginBots()
     for i in bots["botsMid"]:
         threading.Thread(target=kambing, args=(mbing[i], i)).start()
 
