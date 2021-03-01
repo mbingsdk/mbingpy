@@ -1,6 +1,7 @@
 from function import *
+import threading
 
-token = ["ubb45d7b1e40edae8f61076194b3d60b0:aXNzdWVkVG86IHViYjQ1ZDdiMWU0MGVkYWU4ZjYxMDc2MTk0YjNkNjBiMAppYXQ6IDE2MDY5NzQyMTUyMzYK.dHlwZTogWVdUCmFsZzogSE1BQ19TSEExCg==.4pGUdB+NUtj4+AWFIehYhUe5irg=","u3be5c7a0d5ac4e88acefab1b72a7ade1:aXNzdWVkVG86IHUzYmU1YzdhMGQ1YWM0ZTg4YWNlZmFiMWI3MmE3YWRlMQppYXQ6IDE2MDY5NzQzNjAxNTkK.dHlwZTogWVdUCmFsZzogSE1BQ19TSEExCg==.Q7ku8fnfRRjrVXufW+L63mEsyS8="]
+token = []
 
 apps = {
     "LITE":"ANDROIDLITE\t2.14.0\tAndroid OS\t5.1.1",
@@ -14,15 +15,12 @@ bots = {
     "cl":0,
     "botsNum":{},
     "botsMid":{},
-    "loader":{},
-    "teams":{},
-    "sdk":{
-        'ue2330fdb6b7db69eb771c3176388d0ff'
-    }
+    "loader":[],
+    "teams":[],
+    "sdk":["ue2330fdb6b7db69eb771c3176388d0ff"]
 }
 group = {
     "list":{},
-    "sdk": {},
     "qr":[],
     "invite":[],
     "kick":[],
@@ -42,10 +40,10 @@ def loginBots():
         pf = cl.getProfile()
         mbing[pf.mid] = cl
         bots["botsNum"][pf.mid] = i
-        bots["botsMid"].append(pf.mid)
+        bots["botsMid"][i] = pf.mid
         fl = cl.getAllContactIds()
-        checkContact(cl, admin)
-        configSet(cl, pf.mid)
+        #checkContact(cl, admin)
+        #configSet(cl, pf.mid)
         cekGroup(cl, pf.mid)
 
 def belekin(enemy):
@@ -159,15 +157,15 @@ def peroJoin(to, enemy):
             belekin(enemy)
 
 def cekGroup(client, myself):
-    x = client.getAllChatMids().memberMids
+    x = client.getAllChatMids().memberChatMids
     for i in x:
-        if x not in group["list"].keys():
-            group["list"][x] = {
+        if i not in list(group["list"]):
+            group["list"][i] = {
                 "in":[myself],
                 "out":[]
             }
-        elif myself not in group["list"][x]["in"]:
-            group["list"][x]["in"].append(myself)
+        elif myself not in group["list"][i]["in"]:
+            group["list"][i]["in"].append(myself)
 
 def apdetGroup(to, myself, ops):
     if ops == "in":
@@ -267,11 +265,11 @@ def worker(op, m):
                         except Exception as err:
                             mbing[m].sendMessage(to, str(err))
 
-            elif cmd.startswith("kmn") and bots["botsNum"][m] == bots["cl"]:
+            elif cmd.startswith("eeq ") and bots["botsNum"][m] == bots["cl"]:
                 key = eval(msg.contentMetadata["MENTION"])
                 for x in key["MENTIONEES"]:
                     try:
-                        mbing[m].deleteOtherFromChat(to,[x["M"]])
+                        mbing[random.choice(group["list"][to]["in"])].deleteOtherFromChat(to,[x["M"]])
                     except:
                         pass
             else: pass
@@ -290,6 +288,7 @@ def kambing(client, mids):
                 if op.revision == -1 and op.param1 != None:
                     client.individualRev = int(op.param1.split("\x1e")[0])
                 client.localRev = max(op.revision, client.localRev)
+                #executor.submit(worker,op, mids)
                 worker(op, mids)
         except:
             pass
@@ -297,5 +296,4 @@ def kambing(client, mids):
 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
     loginBots()
     for i in bots["botsMid"]:
-        threading.Thread(target=kambing, args=(mbing[i], i)).start()
-
+        threading.Thread(target=kambing, args=(mbing[bots["botsMid"][i]], bots["botsMid"][i])).start()
