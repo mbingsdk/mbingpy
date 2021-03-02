@@ -14,7 +14,7 @@ mbing = {}
 bots = {
     "cl":0,
     "botsNum":{},
-    "botsMid":{},
+    "botsMid":[],
     "loader":[],
     "teams":{},
     "sdk":["ue2330fdb6b7db69eb771c3176388d0ff"]
@@ -40,7 +40,7 @@ def loginBots():
         pf = cl.getProfile()
         mbing[pf.mid] = cl
         bots["botsNum"][pf.mid] = i
-        bots["botsMid"][i] = pf.mid
+        bots["botsMid"].append(pf.mid)
         bots["teams"][pf.mid] = []
         cekGroup(cl, pf.mid)
         checkContact(cl, admin)
