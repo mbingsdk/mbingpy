@@ -16,7 +16,7 @@ bots = {
     "botsNum":{},
     "botsMid":{},
     "loader":[],
-    "teams":[],
+    "teams":{},
     "sdk":["ue2330fdb6b7db69eb771c3176388d0ff"]
 }
 group = {
@@ -41,10 +41,10 @@ def loginBots():
         mbing[pf.mid] = cl
         bots["botsNum"][pf.mid] = i
         bots["botsMid"][i] = pf.mid
-        fl = cl.getAllContactIds()
-        #checkContact(cl, admin)
-        #configSet(cl, pf.mid)
+        bots["teams"][pf.mid] = []
         cekGroup(cl, pf.mid)
+        checkContact(cl, admin)
+        #configSet(cl, pf.mid)
 
 def belekin(enemy):
     if enemy not in blacklist:
@@ -83,17 +83,19 @@ def goCancel(to, enemy):
                     pass
     else:
         if len(group["list"][to]["in"]) > 0:
-            for i in range(x):
-                try:
-                    mbing[random.choice(group["list"][to]["in"])].cancelChatInvitation(to, [enemy])
-                except:
-                    pass
+            try:
+                mbing[random.choice(group["list"][to]["in"])].cancelChatInvitation(to, [enemy])
+            except:
+                pass
 
 def checkContact(client, mid):
     fl = client.getAllContactIds()
     if mid not in fl:
-        client.findAndAddContactsByMid(mid)
-        time.sleep(5)
+        try:
+            client.findAndAddContactsByMid(mid)
+            time.sleep(5)
+        except:
+            pass
 
 def peroQR(client, to, enemy, myself):
     if to in group["qr"] or enemy in blacklist:
@@ -248,9 +250,105 @@ def worker(op, m):
                 total = time.time()-start
                 mbing[m].sendMessage(to,str(total))
 
+            elif cmd == "bots" and bots["botsNum"][m] == bots["cl"]:
+                if sender in admin:
+                    n = "Bot List"
+                    for i in range(len(bots["botsMid"])):
+                        x = mbing[m].getContact(bots["botsMid"][i]).displayName
+                        n += "\n{}. {}".format(i, x)
+                    mbing[m].sendMessage(to, n)
+
+            elif cmd == "addbot":
+                if sender in admin:
+                    for i in bots["botsMid"]:
+                        checkContact(mbing[m], i):
+                    mbing[m].sendMessage(to, "Done")
+
+            elif cmd == "cek":
+                if sender in admin:
+                    res = "Normal"
+                    try:
+                        mbing[m].deleteOtherFromChat(to,[m])
+                    except Exception as asu:
+                        if 'request blocked':
+                            res = "Limit"
+                    if res == "Normal" and m not in bots["loader"]:
+                        bots["loader"].append(m)
+                    mbing[m].sendMessage(to, res)
+
+            elif cmd == "load team":
+                if sender in admin:
+                    if len(bots["loader"]) > 0:
+                        n = 0
+                        o = "My team"
+                        for i in bots["loader"]:
+                            if i != m and i not in bots["teams"][m]:
+                                bots["teams"][m].append(i)
+                                o += "\n{}. {}".format(n, mbing[m].getContact(i).displayName)
+                                n += 1
+                    else:
+                        o = "Empty"
+                    mbing[m].sendMessage(to, o)
+
+            elif cmd == "reset loader" and bots["botsNum"][m] == bots["cl"]:
+                if sender in admin:
+                    bots["loader"] = []
+                    mbing[m].sendMessage(to, "Ahh Ikeh")
+
+            elif cmd.startswith("clientset "):
+                if sender in admin:
+                    spl = cmd.split(" ")
+                    if is_integer(spl[1]):
+                        bots["cl"] = int(spl[1])
+                    mbing[m].sendMessage(to, "Client set: {}", mbing[m].getContact(bots["botsMid"][int(spl[1])]).displayName)
+
+            elif cmd.startswith("purge ") and bots["botsNum"][m] == bots["cl"]:
+                if sender in admin:
+                    spl = cmd.split(" ")
+                    if spl[1] == "on":
+                        autoPurge = True
+                    elif spl[1] == "off":
+                        autoPurge = False
+                    mbing[m].sendMessage(to, "Ah ikehh")
+
             elif cmd == "oh":
                 if sender in admin:
                     mbing[m].deleteSelfFromChat(to)
+                    if to in group["list"]:
+                        del group["list"]["to"]
+
+            elif cmd == "banlist" and bots["botsNum"][m] == bots["cl"]:
+                if sender in admin:
+                    if len(blacklist) > 0:
+                        mbing[m].sendMessage(to, str(blacklist))
+
+            elif cmd == "clearban" and bots["botsNum"][m] == bots["cl"]:
+                if sender in admin:
+                    if len(blacklist) > 0:
+                        blacklist = []
+                        mbing[m].sendMessage(to, "Ahhh ikeh")
+
+            elif cmd == "invteam" and bots["botsNum"][m] == bots["cl"]:
+                if sender in admin:
+                    if len(bots["teams"][m]) > 0:
+                        mbing[m].inviteIntoChat(to, bots["teams"][m])
+                        mbing[m].sendMessage(to, "Ahhh ikeh")
+
+            elif cmd == "allin" and bots["botsNum"][m] == bots["cl"]:
+                if sender in admin:
+                    if len(bots["botsMid"]) > 0:
+                        x = []
+                        for i in bots["botsMid"]:
+                            if m != i:
+                                x.append(i)
+                        mbing[m].inviteIntoChat(to, i)
+                        mbing[m].sendMessage(to, "Ahhh ikeh")
+
+            elif cmd.startswith("qr ") and bots["botsNum"][m] == bots["cl"]:
+                if sender in admin:
+                    mbing[m].deleteSelfFromChat(to)
+                    if to in group["list"]:
+                        del group["list"]["to"]
             
             elif cmd.startswith("!x") and bots["botsNum"][m] == bots["cl"]:
                 #if wait["selfbot"] == True:
