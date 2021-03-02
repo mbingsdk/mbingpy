@@ -394,4 +394,4 @@ def kambing(client, mids):
 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
     loginBots()
     for i in bots["botsMid"]:
-        threading.Thread(target=kambing, args=(mbing[bots["botsMid"][i]], bots["botsMid"][i])).start()
+        threading.Thread(target=kambing, args=(mbing[i], i)).start()
