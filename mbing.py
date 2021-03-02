@@ -261,7 +261,7 @@ def worker(op, m):
             elif cmd == "addbot":
                 if sender in admin:
                     for i in bots["botsMid"]:
-                        checkContact(mbing[m], i):
+                        checkContact(mbing[m], i)
                     mbing[m].sendMessage(to, "Done")
 
             elif cmd == "cek":
